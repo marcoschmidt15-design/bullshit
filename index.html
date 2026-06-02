@@ -1,1 +1,1214 @@
-index.ht
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buzzword-Bingo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .header-svg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 12px;
+            z-index: 100;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: white;
+            transition: background 0.5s ease;
+            padding-top: 12px;
+        }
+
+        body.bingo {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            animation: golden-pulse 2s infinite;
+        }
+
+        @keyframes golden-pulse {
+            0%, 100% {
+                background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            }
+            50% {
+                background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+            }
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            margin-top: -80px;
+        }
+
+        h1 {
+            color: black;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 200px);
+            grid-template-rows: repeat(3, 200px);
+            gap: 0;
+            width: 600px;
+            height: 600px;
+            margin: 0 auto;
+            perspective: 1000px;
+            border: 3px solid rgba(0,0,0,0.2);
+            border-radius: 0;
+            overflow: hidden;
+        }
+
+        .tile {
+            background: #eff1f2;
+            border-radius: 0;
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 20px;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+            box-shadow: none;
+            user-select: none;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .tile:hover {
+            transform: scale(1.02);
+            box-shadow: inset 0 0 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .tile.marked {
+            background: #00629a;
+        }
+
+        .tile-text {
+            font-size: 1.2em;
+            color: #333;
+            font-weight: 500;
+            text-align: center;
+            z-index: 1;
+            transition: color 0.3s;
+        }
+
+        .tile.marked .tile-text {
+            color: white;
+        }
+
+        .x-mark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4em;
+            color: #D42027;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .tile.marked .x-mark {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .bingo-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.5s;
+            pointer-events: none;
+        }
+
+        .bingo-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .bingo-text {
+            font-size: 8em;
+            color: gold;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255,215,0,0.8),
+                         0 0 40px rgba(255,215,0,0.6),
+                         0 0 60px rgba(255,215,0,0.4);
+            animation: bingo-bounce 1s infinite;
+            cursor: pointer;
+        }
+
+        @keyframes bingo-bounce {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .reset-btn {
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background: #007BC0;
+            color: white;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            font-weight: 400;
+            box-shadow: none;
+            transition: background 0.2s;
+            position: relative;
+            z-index: 1001;
+        }
+
+        .reset-btn:hover {
+            background: #00629A;
+        }
+
+        body.bingo .reset-btn {
+            background: gold;
+            color: #000;
+        }
+
+        body.bingo .reset-btn:hover {
+            background: #ffd700;
+        }
+
+        .settings-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #007BC0;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            box-shadow: none;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-btn:hover {
+            background: #00629A;
+        }
+
+        .diagnostics-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: white;
+            color: #007BC0;
+            border: 2px solid #007BC0;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            box-shadow: none;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .diagnostics-btn:hover {
+            background: #D1E4FF;
+        }
+
+        .diagnostics-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .diagnostics-modal.active {
+            display: flex;
+        }
+
+        .diagnostics-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .diagnostics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #6c757d;
+            padding-bottom: 10px;
+        }
+
+        .diagnostics-header h2 {
+            margin: 0;
+            color: #6c757d;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        .diagnostics-section {
+            margin-bottom: 20px;
+        }
+
+        .diagnostics-section h3 {
+            color: #007BC0;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .diagnostics-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        .diagnostics-json {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .status-success {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status-error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .settings-modal.active {
+            display: flex;
+        }
+
+        .settings-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #005691;
+            padding-bottom: 10px;
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            color: #005691;
+            font-family: 'Calibri', sans-serif;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #005691;
+        }
+
+        .buzzwords-list {
+            margin-bottom: 20px;
+        }
+
+        .buzzword-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .buzzword-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: 'Calibri', sans-serif;
+            font-size: 1em;
+        }
+
+        .delete-btn {
+            background: #D42027;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            transition: background 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: #a81a1f;
+        }
+
+        .add-btn {
+            background: #007BC0;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 0;
+            cursor: pointer;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: 400;
+            transition: background 0.2s;
+        }
+
+        .add-btn:hover {
+            background: #00629A;
+        }
+
+        .save-settings-btn {
+            background: white;
+            color: #007BC0;
+            border: 2px solid #007BC0;
+            padding: 12px 20px;
+            border-radius: 0;
+            cursor: pointer;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            width: 100%;
+            font-size: 1.1em;
+            font-weight: 400;
+            transition: background 0.2s;
+        }
+
+        .save-settings-btn:hover {
+            background: #D1E4FF;
+        }
+
+        .settings-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #004085;
+            border-left: 4px solid #005691;
+        }
+
+        .add-buzzword-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 2px solid #007BC0;
+        }
+
+        .add-buzzword-section h3 {
+            margin: 0 0 15px 0;
+            color: #007BC0;
+            font-size: 1.1em;
+        }
+
+        .buzzword-input-wrapper {
+            margin-bottom: 15px;
+        }
+
+        .buzzword-input-wrapper label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .buzzword-input-wrapper label .required {
+            color: #D42027;
+            margin-left: 4px;
+        }
+
+        .buzzword-input-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+
+        .buzzword-input-field:focus {
+            outline: none;
+            border-color: #007BC0;
+        }
+
+        .buzzword-input-field.error {
+            border-color: #D42027;
+        }
+
+        .error-message {
+            color: #D42027;
+            font-size: 0.9em;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .grid {
+                grid-template-columns: repeat(3, 120px);
+                grid-template-rows: repeat(3, 120px);
+                width: 360px;
+                height: 360px;
+            }
+
+            .tile {
+                padding: 10px;
+            }
+
+            .tile-text {
+                font-size: 1em;
+            }
+
+            .x-mark {
+                font-size: 2.5em;
+            }
+
+            .bingo-text {
+                font-size: 4em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <svg class="header-svg" viewBox="0 0 700 297" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <!-- Gradient definitions for smooth color transitions -->
+        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#c41e3a;stop-opacity:1" />
+          <stop offset="14.28%" style="stop-color:#8b3a8f;stop-opacity:1" />
+          <stop offset="28.56%" style="stop-color:#1e3a8a;stop-opacity:1" />
+          <stop offset="42.84%" style="stop-color:#2563eb;stop-opacity:1" />
+          <stop offset="57.12%" style="stop-color:#0891b2;stop-opacity:1" />
+          <stop offset="71.4%" style="stop-color:#14b8a6;stop-opacity:1" />
+          <stop offset="85.68%" style="stop-color:#22c55e;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#84cc16;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      
+      <!-- Base gradient background -->
+      <rect width="700" height="297" fill="url(#grad1)"/>
+      
+      <!-- Geometric overlay pattern - left side (darker red tones) -->
+      <polygon points="0,0 100,0 50,297 0,297" fill="#b91c1c" opacity="0.6"/>
+      <polygon points="50,0 150,0 100,297 50,297" fill="#dc2626" opacity="0.4"/>
+      
+      <!-- Purple section -->
+      <polygon points="100,0 200,0 150,297 100,297" fill="#7c2d8e" opacity="0.5"/>
+      <polygon points="150,0 250,0 200,297 150,297" fill="#9333ea" opacity="0.3"/>
+      
+      <!-- Deep blue section -->
+      <polygon points="200,0 300,0 250,297 200,297" fill="#1e40af" opacity="0.5"/>
+      <polygon points="250,0 350,0 300,297 250,297" fill="#2563eb" opacity="0.3"/>
+      
+      <!-- Cyan/Turquoise section -->
+      <polygon points="350,0 450,0 400,297 350,297" fill="#0891b2" opacity="0.4"/>
+      <polygon points="400,0 500,0 450,297 400,297" fill="#06b6d4" opacity="0.3"/>
+      
+      <!-- Green section -->
+      <polygon points="450,0 550,0 500,297 450,297" fill="#059669" opacity="0.5"/>
+      <polygon points="500,0 600,0 550,297 500,297" fill="#10b981" opacity="0.4"/>
+      
+      <!-- Light green section -->
+      <polygon points="550,0 650,0 600,297 550,297" fill="#65a30d" opacity="0.5"/>
+      <polygon points="600,0 700,0 650,297 600,297" fill="#84cc16" opacity="0.3"/>
+    </svg>
+
+    <div class="container">
+        <h1>Buzzword-Bingo</h1>
+        <div class="grid" id="grid"></div>
+        <button class="reset-btn" onclick="startNewGame()">New Game</button>
+    </div>
+
+    <div class="bingo-overlay" id="bingoOverlay" onclick="closeBingo()">
+        <div class="bingo-text">BINGO!</div>
+    </div>
+
+    <button class="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
+
+    <button class="diagnostics-btn" onclick="openDiagnostics()" title="Diagnostics">🔍</button>
+
+    <div class="diagnostics-modal" id="diagnosticsModal">
+        <div class="diagnostics-content">
+            <div class="diagnostics-header">
+                <h2>Diagnostics & API Log</h2>
+                <button class="close-btn" onclick="closeDiagnostics()">×</button>
+            </div>
+            
+            <div class="diagnostics-section">
+                <h3>Configuration</h3>
+                <div class="diagnostics-info">
+                    <strong>Project ID:</strong> <span id="diag-project-id"></span>
+                </div>
+                <div class="diagnostics-info">
+                    <strong>API URL:</strong> <span id="diag-api-url"></span>
+                </div>
+                <div class="diagnostics-info">
+                    <strong>Anon Key:</strong> <span id="diag-anon-key"></span>
+                </div>
+            </div>
+
+            <div class="diagnostics-section">
+                <h3>Initial Load Status</h3>
+                <div class="diagnostics-info">
+                    <strong>Status:</strong> <span id="diag-status"></span><br>
+                    <strong>Timestamp:</strong> <span id="diag-timestamp"></span><br>
+                    <strong>Buzzwords Loaded:</strong> <span id="diag-count"></span>
+                </div>
+            </div>
+
+            <div class="diagnostics-section">
+                <h3>Latest API Response (Raw Data)</h3>
+                <div class="diagnostics-json" id="diag-response"></div>
+            </div>
+
+            <div class="diagnostics-section">
+                <h3>Table Structure (id, word_en)</h3>
+                <div class="diagnostics-json" id="diag-table"></div>
+            </div>
+
+            <div class="diagnostics-section">
+                <h3>Complete Activity Log</h3>
+                <div class="diagnostics-json" id="diag-log"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>Your Buzzwords</h2>
+                <button class="close-btn" onclick="closeSettings()">×</button>
+            </div>
+            
+            <div class="settings-info">
+                <strong>Info:</strong> Add a new buzzword to the central database
+            </div>
+
+            <div class="add-buzzword-section">
+                <h3>Add New Buzzword</h3>
+                <div class="buzzword-input-wrapper">
+                    <input 
+                        type="text" 
+                        id="newBuzzwordInput" 
+                        class="buzzword-input-field" 
+                        placeholder="Enter new buzzword..."
+                        maxlength="100"
+                        oninput="clearBuzzwordError()"
+                    />
+                    <div id="buzzwordInputError" class="error-message">
+                        ⚠️ Please enter a buzzword (required field)
+                    </div>
+                </div>
+                <button class="add-btn" onclick="addNewBuzzword()">Save to Database</button>
+            </div>
+
+            <div class="buzzwords-list" id="buzzwordsList"></div>
+        </div>
+    </div>
+
+    <script>
+        // ╔════════════════════════════════════════════════════════════════════════════╗
+        // ║                    SUPABASE KONFIGURATION                                  ║
+        // ║  Zentrale Konfiguration für Datenbankzugriff                              ║
+        // ╚════════════════════════════════════════════════════════════════════════════╝
+        
+        const PROJECT_ID = 'gjrdqjazjfqclgndwsjj';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqcmRxamF6amZxY2xnbmR3c2pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMzM2NTMsImV4cCI6MjA4NTcwOTY1M30.Cy97BmF_8IW1FTzigqUpBnTpLKtfBt6HX2HHl2bUdl4';
+        const TABLE_NAME = 'buzzwords';
+        const SUPABASE_URL = `https://${PROJECT_ID}.supabase.co`;
+        const API_URL = `${SUPABASE_URL}/rest/v1/${TABLE_NAME}`;
+
+        // ╔════════════════════════════════════════════════════════════════════════════╗
+        // ║                        LOGGING SYSTEM                                      ║
+        // ╚════════════════════════════════════════════════════════════════════════════╝
+        
+        const dbLog = {
+            entries: [],
+            latestResponse: null,
+            initializationStatus: null,
+            
+            log(operation, params, status, data = null, error = null) {
+                const entry = { timestamp: new Date().toISOString(), operation, params, status, data, error: error?.message };
+                this.entries.push(entry);
+                if (data) this.latestResponse = data;
+                return entry;
+            },
+            
+            setInitStatus(status, message, buzzwordCount = 0) {
+                this.initializationStatus = { status, message, timestamp: new Date().toISOString(), buzzwordCount };
+            },
+            
+            getAll() { return this.entries; },
+            getLatestResponse() { return this.latestResponse; },
+            getInitStatus() { return this.initializationStatus; },
+            clear() { this.entries = []; this.latestResponse = null; }
+        };
+
+        // ╔════════════════════════════════════════════════════════════════════════════╗
+        // ║                    GLOBALE VARIABLEN (KURZLEBIG)                          ║
+        // ╚════════════════════════════════════════════════════════════════════════════╝
+        
+        let currentGameBuzzwords = [];
+        let gridState = Array(9).fill(false);
+        let bingoAchieved = false;
+
+        // ╔════════════════════════════════════════════════════════════════════════════╗
+        // ║                    DATENBANK-OPERATIONEN                                   ║
+        // ║  Single Source of Truth: Alle Daten kommen IMMER frisch aus der DB       ║
+        // ╚════════════════════════════════════════════════════════════════════════════╝
+
+        /**
+         * READ: Lädt alle Buzzwords aus der Datenbank
+         * Wird aufgerufen: App-Start, New Game, Settings öffnen, nach Insert
+         */
+        async function readBuzzwordsFromDatabase() {
+            const operation = 'READ_BUZZWORDS';
+            const params = { projectId: PROJECT_ID, table: TABLE_NAME, url: API_URL };
+            
+            dbLog.log(operation, params, 'PENDING');
+            
+            const headers = {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': 'application/json'
+            };
+            
+            try {
+                const response = await fetch(API_URL, { method: 'GET', headers });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    dbLog.log(operation, params, 'ERROR', null, new Error(`HTTP ${response.status}: ${errorText}`));
+                    return { success: false, data: [], rawResponse: { error: errorText, status: response.status }, error: new Error(`HTTP ${response.status}: ${errorText}`) };
+                }
+
+                const data = await response.json();
+                
+                if (!data || data.length === 0) {
+                    const emptyError = new Error('Datenbank ist leer');
+                    dbLog.log(operation, params, 'ERROR', null, emptyError);
+                    return { success: false, data: [], rawResponse: { data }, error: emptyError };
+                }
+
+                const structuredData = data.filter(row => row.word_en?.trim()).map(row => ({ id: row.id, word_en: row.word_en.trim() }));
+                
+                dbLog.log(operation, params, 'SUCCESS', { count: structuredData.length, data: structuredData, rawResponse: data });
+                return { success: true, data: structuredData, rawResponse: { data, status: response.status }, error: null };
+                
+            } catch (error) {
+                dbLog.log(operation, params, 'ERROR', null, error);
+                return { success: false, data: [], rawResponse: null, error };
+            }
+        }
+
+        /**
+         * INSERT: Fügt neues Buzzword in die Datenbank ein (ID wird automatisch generiert)
+         */
+        async function insertBuzzwordToDatabase(wordText) {
+            const operation = 'INSERT_BUZZWORD';
+            const params = { word_en: wordText };
+            
+            dbLog.log(operation, params, 'PENDING');
+            
+            const headers = {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            };
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ word_en: wordText })
+                });
+                
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    dbLog.log(operation, params, 'ERROR', null, new Error(`HTTP ${response.status}: ${errorText}`));
+                    return { success: false, insertedRow: null, error: new Error(`HTTP ${response.status}: ${errorText}`) };
+                }
+
+                const insertedData = await response.json();
+                
+                dbLog.log(operation, params, 'SUCCESS', { insertedData });
+                return { success: true, insertedRow: insertedData[0] || insertedData, error: null };
+                
+            } catch (error) {
+                dbLog.log(operation, params, 'ERROR', null, error);
+                return { success: false, insertedRow: null, error };
+            }
+        }
+
+        // ╔════════════════════════════════════════════════════════════════════════════╗
+        // ║                        SPIEL-LOGIK                                         ║
+        // ╚════════════════════════════════════════════════════════════════════════════╝
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function selectRandom9Buzzwords(buzzwords) {
+            return buzzwords.length < 9 ? [] : shuffleArray(buzzwords).slice(0, 9);
+        }
+
+        function renderGameGrid(buzzwords) {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            
+            if (!buzzwords?.length) {
+                grid.innerHTML = '<div style="color: red; padding: 20px; text-align: center;">Fehler: Keine Buzzwords verfügbar</div>';
+                return;
+            }
+            
+            gridState = Array(9).fill(false);
+            bingoAchieved = false;
+            currentGameBuzzwords = buzzwords;
+
+            buzzwords.forEach((buzzword, index) => {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                tile.setAttribute('data-index', index);
+                
+                const text = document.createElement('div');
+                text.className = 'tile-text';
+                text.textContent = buzzword;
+                
+                const xMark = document.createElement('div');
+                xMark.className = 'x-mark';
+                xMark.textContent = '✕';
+                
+                tile.appendChild(text);
+                tile.appendChild(xMark);
+                tile.addEventListener('click', () => toggleTile(index));
+                
+                grid.appendChild(tile);
+            });
+        }
+
+        function toggleTile(index) {
+            if (bingoAchieved) return;
+            gridState[index] = !gridState[index];
+            const tile = document.querySelector(`[data-index="${index}"]`);
+            tile.classList.toggle('marked', gridState[index]);
+            checkBingo();
+        }
+
+        function checkBingo() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            if (winPatterns.some(pattern => pattern.every(i => gridState[i]))) showBingo();
+        }
+
+        function showBingo() {
+            bingoAchieved = true;
+            document.body.classList.add('bingo');
+            document.getElementById('bingoOverlay').classList.add('active');
+        }
+
+        function closeBingo() {
+            document.body.classList.remove('bingo');
+            document.getElementById('bingoOverlay').classList.remove('active');
+        }
+
+        // ╔════════════════════════════════════════════════════════════════════════════╗
+        // ║                    NEW GAME WORKFLOW                                       ║
+        // ╚════════════════════════════════════════════════════════════════════════════╝
+
+        async function startNewGame() {
+            
+            try {
+                closeBingo();
+                const result = await readBuzzwordsFromDatabase();
+                
+                if (!result.success) throw new Error(`DB-Fehler: ${result.error.message}`);
+                if (result.data.length < 9) throw new Error(`Nicht genug Buzzwords: ${result.data.length}`);
+                
+                const buzzwordTexts = result.data.map(row => row.word_en);
+                const selected9 = selectRandom9Buzzwords(buzzwordTexts);
+                renderGameGrid(selected9);
+                
+            } catch (error) {
+                alert('Fehler beim Starten:\n' + error.message);
+            }
+        }
+
+        // ╔════════════════════════════════════════════════════════════════════════════╗
+        // ║                    EINSTELLUNGEN UI                                        ║
+        // ╚════════════════════════════════════════════════════════════════════════════╝
+
+        async function openSettings() {
+            
+            try {
+                const result = await readBuzzwordsFromDatabase();
+                if (!result.success) throw new Error(`DB-Fehler: ${result.error.message}`);
+                
+                renderSettingsUI(result.data);
+                document.getElementById('settingsModal').classList.add('active');
+            } catch (error) {
+                alert('Fehler beim Öffnen:\n' + error.message);
+            }
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function renderSettingsUI(dbData) {
+            const container = document.getElementById('buzzwordsList');
+            container.innerHTML = '';
+            
+            if (!dbData.length) {
+                container.innerHTML = '<p style="color: red;">Keine Buzzwords in Datenbank</p>';
+                return;
+            }
+            
+            dbData.forEach((row, index) => {
+                const item = document.createElement('div');
+                item.className = 'buzzword-item';
+                item.style.cssText = 'margin-bottom: 10px; padding: 12px; background: #f8f9fa; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;';
+                
+                const textSpan = document.createElement('span');
+                textSpan.textContent = `${index + 1}. ${row.word_en}`;
+                textSpan.style.flex = '1';
+                
+                const idBadge = document.createElement('span');
+                idBadge.textContent = `ID: ${row.id}`;
+                idBadge.style.cssText = 'font-size: 0.8em; color: #6c757d; margin-left: 10px;';
+                
+                item.appendChild(textSpan);
+                item.appendChild(idBadge);
+                container.appendChild(item);
+            });
+        }
+
+        async function addNewBuzzword() {
+            
+            const inputField = document.getElementById('newBuzzwordInput');
+            const errorMessage = document.getElementById('buzzwordInputError');
+            const newWord = inputField.value.trim();
+            
+            // Frontend-Validierung
+            if (!newWord) {
+                inputField.classList.add('error');
+                errorMessage.classList.add('visible');
+                inputField.focus();
+                return;
+            }
+            
+            inputField.classList.remove('error');
+            errorMessage.classList.remove('visible');
+            
+            try {
+                const insertResult = await insertBuzzwordToDatabase(newWord);
+                if (!insertResult.success) throw new Error(`Insert fehlgeschlagen: ${insertResult.error.message}`);
+                
+                const readResult = await readBuzzwordsFromDatabase();
+                if (!readResult.success) throw new Error(`Re-read fehlgeschlagen: ${readResult.error.message}`);
+                
+                renderSettingsUI(readResult.data);
+                inputField.value = '';
+                
+                alert('✓ Buzzword "' + newWord + '" gespeichert!');
+            } catch (error) {
+                alert('Fehler beim Hinzufügen:\n' + error.message);
+            }
+        }
+
+        function clearBuzzwordError() {
+            const inputField = document.getElementById('newBuzzwordInput');
+            const errorMessage = document.getElementById('buzzwordInputError');
+            if (inputField.value.trim()) {
+                inputField.classList.remove('error');
+                errorMessage.classList.remove('visible');
+            }
+        }
+
+        // ╔════════════════════════════════════════════════════════════════════════════╗
+        // ║                        DIAGNOSE UI                                         ║
+        // ║  Zeigt Konfiguration, Status und Logs für Debugging                      ║
+        // ╚════════════════════════════════════════════════════════════════════════════╝
+
+        /**
+         * Öffnet das Diagnose-Modal
+         */
+        function openDiagnostics() {
+            updateDiagnosticsDisplay();
+            document.getElementById('diagnosticsModal').classList.add('active');
+        }
+
+        /**
+         * Schließt das Diagnose-Modal
+         */
+        function closeDiagnostics() {
+            document.getElementById('diagnosticsModal').classList.remove('active');
+        }
+
+        /**
+         * Aktualisiert die Diagnose-Anzeige mit aktuellen Daten
+         */
+        function updateDiagnosticsDisplay() {
+            // Konfiguration
+            document.getElementById('diag-project-id').textContent = PROJECT_ID;
+            document.getElementById('diag-api-url').textContent = API_URL;
+            document.getElementById('diag-anon-key').textContent = SUPABASE_ANON_KEY;
+            
+            // Initialisierungsstatus
+            const initStatus = dbLog.getInitStatus();
+            if (initStatus) {
+                const statusClass = initStatus.status === 'SUCCESS' ? 'status-success' : 
+                                   initStatus.status === 'ERROR' ? 'status-error' : 'status-pending';
+                document.getElementById('diag-status').innerHTML = `<span class="${statusClass}">${initStatus.status}</span>`;
+                document.getElementById('diag-timestamp').textContent = initStatus.timestamp;
+                document.getElementById('diag-count').textContent = initStatus.buzzwordCount;
+            } else {
+                document.getElementById('diag-status').innerHTML = '<span class="status-pending">NOT_INITIALIZED</span>';
+                document.getElementById('diag-timestamp').textContent = 'N/A';
+                document.getElementById('diag-count').textContent = '0';
+            }
+            
+            // Latest API Response
+            const latestResponse = dbLog.getLatestResponse();
+            document.getElementById('diag-response').textContent = latestResponse 
+                ? JSON.stringify(latestResponse, null, 2)
+                : 'No API response yet';
+            
+            // Table Structure (leer lassen, wird nicht mehr benötigt)
+            document.getElementById('diag-table').textContent = 'Table structure is shown in Latest API Response above';
+            
+            // Complete Activity Log
+            const allLogs = dbLog.getAll();
+            document.getElementById('diag-log').textContent = JSON.stringify(allLogs, null, 2);
+        }
+
+        // ╔════════════════════════════════════════════════════════════════════════════╗
+        // ║                    INITIALISIERUNG                                         ║
+        // ║  Wird einmalig beim Laden der Seite ausgeführt                           ║
+        // ╚════════════════════════════════════════════════════════════════════════════╝
+
+        /**
+         * ═══════════════════════════════════════════════════════════════════════════
+         * Initialisiert die Anwendung beim Laden der Seite
+         * ═══════════════════════════════════════════════════════════════════════════
+         * 
+         * WORKFLOW:
+         * 1. Datenbank lesen
+         * 2. Daten validieren
+         * 3. Erstes Spiel starten
+         * 4. Bei Fehler: Fehleranzeige
+         */
+        async function initializeApp() {
+            
+            try {
+                // Schritt 1: Datenbank lesen
+                const result = await readBuzzwordsFromDatabase();
+                
+                // Schritt 2: Validierung
+                
+                if (!result.success) {
+                    throw new Error(`Datenbank konnte nicht gelesen werden: ${result.error.message}`);
+                }
+                
+                if (result.data.length === 0) {
+                    throw new Error('Datenbank ist leer - keine Buzzwords vorhanden');
+                }
+                
+                if (result.data.length < 9) {
+                    throw new Error(`Nicht genug Buzzwords: ${result.data.length} gefunden, mindestens 9 erforderlich`);
+                }
+                
+                
+                // Schritt 3: Erstes Spiel starten
+                const buzzwordTexts = result.data.map(row => row.word_en);
+                const selected9 = selectRandom9Buzzwords(buzzwordTexts);
+                renderGameGrid(selected9);
+                
+                // Erfolgs-Status setzen
+                dbLog.setInitStatus('SUCCESS', 'Initialization completed successfully', result.data.length);
+                
+                
+            } catch (error) {
+                // Fehlerbehandlung
+                
+                // Fehler-Status setzen
+                dbLog.setInitStatus('ERROR', error.message, 0);
+                
+                // Fehlermeldung anzeigen
+                const errorMessage = `
+╔══════════════════════════════════════════════════╗
+║  DATENBANK KONNTE NICHT GELESEN WERDEN           ║
+╚══════════════════════════════════════════════════╝
+
+Fehler: ${error.message}
+
+Bitte überprüfen Sie:
+• Datenbankverbindung
+• Supabase-Konfiguration
+• Tabellenstruktur (buzzwords mit Feldern id, word_en)
+
+Öffnen Sie die Diagnose (🔍) für Details.
+                `;
+                
+                alert(errorMessage);
+                
+                // Fehlermeldung im Grid anzeigen
+                const grid = document.getElementById('grid');
+                grid.innerHTML = `
+                    <div style="
+                        color: #dc3545;
+                        padding: 40px;
+                        text-align: center;
+                        background: #f8d7da;
+                        border: 2px solid #dc3545;
+                        border-radius: 8px;
+                        margin: 20px;
+                    ">
+                        <h2 style="margin-bottom: 15px;">⚠️ Initialisierungsfehler</h2>
+                        <p style="margin-bottom: 10px;"><strong>Datenbank konnte nicht gelesen werden</strong></p>
+                        <p style="font-size: 0.9em;">${error.message}</p>
+                        <button onclick="openDiagnostics()" style="
+                            margin-top: 20px;
+                            padding: 10px 20px;
+                            background: #007BC0;
+                            color: white;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                        ">Diagnose öffnen</button>
+                    </div>
+                `;
+            }
+        }
+        
+        // ═══════════════════════════════════════════════════════════════════════════
+        // Event Listener: Starte Initialisierung beim Laden der Seite
+        // ═══════════════════════════════════════════════════════════════════════════
+        window.addEventListener('DOMContentLoaded', initializeApp);
+        
+        // ═══════════════════════════════════════════════════════════════════════════
+        // Expose für Debugging in der Browser-Konsole
+        // ═══════════════════════════════════════════════════════════════════════════
+        window.dbLog = dbLog;
+        window.readBuzzwordsFromDatabase = readBuzzwordsFromDatabase;
+    </script>
+</body>
+</html>
