@@ -2,8 +2,63 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- VIEWPORT CONFIGURATION: Optimiert für responsive und PWA-Nutzung            -->
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- Viewport-fit=cover ermöglicht Vollbildmodus auf Notch-Geräten (iPhone X+)   -->
+    <!-- user-scalable=no deaktiviert Zoom für konsistentes App-Erlebnis             -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    
     <title>Buzzword-Bingo</title>
+    
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- PWA MANIFEST: Definiert Metadaten für Installation und Aussehen der App      -->
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- APP-ICONS: Icons für verschiedene Plattformen und Kontexte                  -->
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="icon192.png">
+    
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- THEME & FARBEN: Corporate Design und visuelle Identität der App             -->
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- Primärfarbe für Browser-UI, Splash-Screens und System-Integrationen -->
+    <meta name="theme-color" content="#E20015">
+    <!-- Hintergrundfarbe des Splash-Screens während App-Start -->
+    <meta name="background-color" content="#FFFFFF">
+    
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- iOS/iPadOS OPTIMIERUNGEN: Apple-spezifische Meta-Tags                       -->
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- Ermöglicht Web App Modus ohne Browser-Chrome auf iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- App wird im Vollbildmodus gestartet (translucent = durchsichtig) -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Name der App wie auf dem iOS Home Screen angezeigt -->
+    <meta name="apple-mobile-web-app-title" content="Bingo">
+    <!-- Blockiert automatisches Zoom-Verhalten bei Tap auf Formularfelder -->
+    <meta name="apple-mobile-web-app-user-scalable" content="no">
+    
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- WEITERE PWA-META-TAGS: Standard und Best-Practices                          -->
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- Android Chrome: Aktiviert "Zur Startseite hinzufügen" Installation -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- Anwendungsname für Installationsdialoge und System-Integration -->
+    <meta name="application-name" content="Buzzword-Bingo">
+    <!-- Format-Erkennung deaktivieren (verhindert unerwünschte Telefonnummern-Links) -->
+    <meta name="format-detection" content="telephone=no">
+    
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- ZUSÄTZLICHE METADATEN: SEO und Browser-Kompatibilität                       -->
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- Microsoft Edge: Tile-Farbe für Windows-Integration -->
+    <meta name="msapplication-TileColor" content="#E20015">
+    
     <style>
         * {
             margin: 0;
@@ -1210,5 +1265,36 @@ Bitte überprüfen Sie:
         window.dbLog = dbLog;
         window.readBuzzwordsFromDatabase = readBuzzwordsFromDatabase;
     </script>
+
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- PWA SERVICE WORKER REGISTRATION                                              -->
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- Registriert den Service Worker für Offline-Funktionalität und Caching        -->
+    <!-- Service Worker ermöglicht: Offline-Zugriff, Push-Benachrichtigungen, etc.    -->
+    <script>
+        // Überprüft Browser-Unterstützung für Service Workers
+        if ('serviceWorker' in navigator) {
+            // Service Worker erst registrieren wenn alle Ressourcen geladen sind
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        // Service Worker erfolgreich registriert
+                        // (Bei Bedarf können hier Benachrichtigungen oder Updates erfolgen)
+                    })
+                    .catch(error => {
+                        // Service Worker konnte nicht registriert werden
+                        // Dies ist nicht kritisch - App funktioniert auch ohne
+                    });
+            });
+        }
+    </script>
+
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- PWA INSTALLATION PROMPT (OPTIONAL)                                           -->
+    <!-- ═════════════════════════════════════════════════════════════════════════════ -->
+    <!-- Browser bietet automatisch "Zur Startseite hinzufügen" an               -->
+    <!-- Wenn Manifest und Service Worker vorhanden sind                         -->
+    <!-- Keine manuellen Prompts nötig - Browser-natives Verhalten wird genutzt -->
+
 </body>
 </html>
