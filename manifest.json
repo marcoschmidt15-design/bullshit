@@ -1,0 +1,25 @@
+{
+  "name": "BullshitBingo",
+  "short_name": "BullshitBingo",
+  "description": "BullshitBingo",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#FFC0CB",
+  "background_color": "#FFC0CB",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "icon192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
