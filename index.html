@@ -125,7 +125,7 @@
         }
 
         /* ═════════════════════════════════════════════════════════════════════════════ */
-        /* LOADING SCREEN ANIMATION: Zeigt beim App-Start 3 Sekunden                   */
+        /* SPLASH SCREEN: Animierte Ladeanimation mit Bounce und Fade-Effekt           */
         /* ═════════════════════════════════════════════════════════════════════════════ */
         .loading-screen {
             position: fixed;
@@ -140,30 +140,58 @@
             justify-content: center;
             z-index: 9999;
             gap: 20px;
-            animation: fadeOut 3s ease-out forwards;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
 
-        /* Icon bleibt statisch, keine Rotation */
+        /* Splash Screen ausblenden (wird von JS mit .hidden Klasse hinzugefügt) */
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* ═════════════════════════════════════════════════════════════════════════════ */
+        /* SPLASH BOUNCE: Icon springt mit Bounce-Effekt auf volle Größe              */
+        /* ═════════════════════════════════════════════════════════════════════════════ */
         .loading-screen .loading-icon {
             width: 64px;
             height: 64px;
+            animation: splashBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
 
-        /* Text unter dem Icon */
+        @keyframes splashBounce {
+            0% {
+                opacity: 0;
+                transform: scale(0.4);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* ═════════════════════════════════════════════════════════════════════════════ */
+        /* SPLASH FADE: Text erscheint mit Fade und leicht versetzter Animation       */
+        /* ═════════════════════════════════════════════════════════════════════════════ */
         .loading-screen .loading-text {
             font-size: 1.5em;
             color: #333;
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             font-weight: bold;
+            animation: splashFade 0.8s ease-out 0.3s forwards;
+            opacity: 0;
         }
 
-        /* Fade-Out Animation: Loading-Screen wird transparent */
-        @keyframes fadeOut {
+        @keyframes splashFade {
             0% {
-                opacity: 1;
+                opacity: 0;
+                transform: translateY(6px);
             }
             100% {
-                opacity: 0;
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
@@ -1225,6 +1253,38 @@
         // ║  Wird einmalig beim Laden der Seite ausgeführt                           ║
         // ╚════════════════════════════════════════════════════════════════════════════╝
 
+        // ═════════════════════════════════════════════════════════════════════════════
+        // SPLASH SCREEN TIMING: Intelligentes Ausblenden mit Mindestdauer
+        // ═════════════════════════════════════════════════════════════════════════════
+        
+        // Speichere Startzeitpunkt des Splash Screens
+        const _splashStart = Date.now();
+        const minShow = 2000;  // Mindestens 2 Sekunden anzeigen
+        
+        /**
+         * Blendet Splash Screen mit Transition aus
+         * Respektiert die Mindestdauer von 2 Sekunden
+         */
+        function hideSplash() {
+            const elapsed = Date.now() - _splashStart;
+            const delay = Math.max(0, minShow - elapsed);
+            
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loadingScreen');
+                if (loadingScreen) {
+                    loadingScreen.classList.add('hidden');
+                }
+            }, delay);
+        }
+        
+        // Sicherheitsnetz: Splash Screen verschwindet spätestens nach 3 Sekunden
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('loadingScreen');
+            if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
+                hideSplash();
+            }
+        }, 3000);
+
         /**
          * ═══════════════════════════════════════════════════════════════════════════
          * Initialisiert die Anwendung beim Laden der Seite
@@ -1317,6 +1377,9 @@ Bitte überprüfen Sie:
                     </div>
                 `;
             }
+            
+            // Splash Screen ausblenden wenn Initialisierung abgeschlossen ist
+            hideSplash();
         }
         
         // ═══════════════════════════════════════════════════════════════════════════
@@ -1329,20 +1392,6 @@ Bitte überprüfen Sie:
         // ═══════════════════════════════════════════════════════════════════════════
         window.dbLog = dbLog;
         window.readBuzzwordsFromDatabase = readBuzzwordsFromDatabase;
-
-        // ═════════════════════════════════════════════════════════════════════════════
-        // LOADING SCREEN FADE-OUT: Verstecke Loading-Screen nach 3 Sekunden
-        // ═════════════════════════════════════════════════════════════════════════════
-        window.addEventListener('load', () => {
-            // Entferne Loading-Screen nach 3 Sekunden (3000ms)
-            setTimeout(() => {
-                const loadingScreen = document.getElementById('loadingScreen');
-                if (loadingScreen) {
-                    loadingScreen.style.pointerEvents = 'none';  // Nicht mehr klickbar
-                    loadingScreen.style.display = 'none';       // Vollständig entfernen
-                }
-            }, 3000);
-        });
     </script>
 
     <!-- ═════════════════════════════════════════════════════════════════════════════ -->
