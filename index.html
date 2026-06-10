@@ -125,7 +125,7 @@
         }
 
         /* ═════════════════════════════════════════════════════════════════════════════ */
-        /* LOADING SCREEN ANIMATION: Zeigt beim App-Start 1.5 Sekunden                 */
+        /* LOADING SCREEN ANIMATION: Zeigt beim App-Start 3 Sekunden                   */
         /* ═════════════════════════════════════════════════════════════════════════════ */
         .loading-screen {
             position: fixed;
@@ -140,7 +140,7 @@
             justify-content: center;
             z-index: 9999;
             gap: 20px;
-            animation: fadeOut 1.5s ease-out forwards;
+            animation: fadeOut 3s ease-out forwards;
         }
 
         /* Icon bleibt statisch, keine Rotation */
@@ -1331,17 +1331,17 @@ Bitte überprüfen Sie:
         window.readBuzzwordsFromDatabase = readBuzzwordsFromDatabase;
 
         // ═════════════════════════════════════════════════════════════════════════════
-        // LOADING SCREEN FADE-OUT: Verstecke Loading-Screen nach 1.5 Sekunden
+        // LOADING SCREEN FADE-OUT: Verstecke Loading-Screen nach 3 Sekunden
         // ═════════════════════════════════════════════════════════════════════════════
         window.addEventListener('load', () => {
-            // Entferne Loading-Screen nach 1.5 Sekunden (1500ms)
+            // Entferne Loading-Screen nach 3 Sekunden (3000ms)
             setTimeout(() => {
                 const loadingScreen = document.getElementById('loadingScreen');
                 if (loadingScreen) {
                     loadingScreen.style.pointerEvents = 'none';  // Nicht mehr klickbar
                     loadingScreen.style.display = 'none';       // Vollständig entfernen
                 }
-            }, 1500);
+            }, 3000);
         });
     </script>
 
